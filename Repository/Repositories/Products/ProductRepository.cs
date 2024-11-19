@@ -12,13 +12,5 @@ namespace Repository.Repositories.Products
             throw new NotImplementedException();
         }
 
-        public void AddProduct(Product product)
-        {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-
-            Add(product);
-        }
-
     }
 }

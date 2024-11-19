@@ -20,22 +20,22 @@ namespace Repository.Repositories
 
         public T Get(int id)
         {
-            throw new NotImplementedException();
+            return _dbSet.Find(id);
         }
 
         public IEnumerable<T> GetAll()
         {
-            throw new NotImplementedException();
+            return _dbSet.ToList();
         }
 
         public void Remove(int id)
         {
-            throw new NotImplementedException();
+            _dbSet.Remove(Get(id));
         }
 
         public void Update(T item)
         {
-            throw new NotImplementedException();
+            _dbSet.Update(item);
         }
     }
 }

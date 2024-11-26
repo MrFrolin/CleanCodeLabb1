@@ -7,7 +7,7 @@ using Repository.Repositories.Products;
 using WebShop.Notifications;
 using WebShop.UnitOfWork;
 
-namespace WebShopTests
+namespace WebShopTests.ProductTests
 {
 
     public class ProductControllerTests
@@ -31,7 +31,6 @@ namespace WebShopTests
             _mockUnitOfWork.Setup(u => u.Products).Returns(_mockProductRepository.Object);
             _controller = new ProductController(_mockUnitOfWork.Object, _productSubject);
 
-            // Ställ in mock av Products-egenskapen
         }
 
         [Fact]

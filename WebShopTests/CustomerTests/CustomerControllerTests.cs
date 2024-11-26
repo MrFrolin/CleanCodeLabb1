@@ -6,7 +6,7 @@ using Repository.Repositories.Products;
 using WebShop.Controllers;
 using WebShop.UnitOfWork;
 
-namespace WebShopTests;
+namespace WebShopTests.CustomerTests;
 
 public class CustomerControllerTests
 {
@@ -30,13 +30,14 @@ public class CustomerControllerTests
         Customer customer = new Customer
         {
             Id = 1,
-            Name = "TestProduct",
+            Name = "TestCustomer",
             Orders = new List<Order>()
         };
         _mockUnitOfWork.Setup(u => u.Customers.Get(customer.Id)).Returns(customer);
 
         //Act
         var result = _controller.GetCustomer(customer.Id);
+        
 
         //Assert
         var okResult = Assert.IsType<OkObjectResult>(result);

@@ -7,7 +7,7 @@ using Repository.Repositories.Products;
 using WebShop.Controllers;
 using WebShop.UnitOfWork;
 
-namespace WebShopTests;
+namespace WebShopTests.OrderTests;
 
 public class OrderControllerTests
 {
@@ -52,8 +52,8 @@ public class OrderControllerTests
     public void GetOrder_ReturnsNotFound_WhenOrderDoesNotExist()
     {
         // Arrange
-       int nonExistentOrderId = 999;
-       _mockUnitOfWork.Setup(u => u.Orders.Get(nonExistentOrderId)).Returns((Order)null);
+        int nonExistentOrderId = 999;
+        _mockUnitOfWork.Setup(u => u.Orders.Get(nonExistentOrderId)).Returns((Order)null);
 
         // Act
         var result = _controller.GetOrder(nonExistentOrderId);

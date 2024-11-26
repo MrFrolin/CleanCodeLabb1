@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Repository.Model
 {
     public class Order

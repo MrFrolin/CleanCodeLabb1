@@ -6,7 +6,7 @@ using Repository.Repositories.Products;
 using WebShop.Controllers;
 using WebShop.UnitOfWork;
 
-namespace WebShop.Tests;
+namespace WebShopTests;
 
 public class CustomerControllerTests
 {
@@ -46,6 +46,54 @@ public class CustomerControllerTests
         _mockUnitOfWork.Verify(u => u.Customers.Get(customer.Id), Times.Once);
     }
 
+
+    [Fact]
+    public void GetCustomer_ReturnsOkResult_WithCustomerHavingOrders()
+    {
+        // Arrange
+        var orders = new List<Order>
+        {
+            new Order { Id = 1, CustomerId = 1, OrderDate = DateTime.Now },
+            new Order { Id = 2, CustomerId = 1, OrderDate = DateTime.Now.AddDays(-1) }
+        };
+
+        var customer = new Customer
+        {
+            Id = 1,
+            Name = "TestCustomer",
+            Orders = orders
+        };
+
+        _mockUnitOfWork.Setup(u => u.Customers.Get(customer.Id)).Returns(customer);
+
+        // Act
+        var result = _controller.GetCustomer(customer.Id);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnedCustomer = Assert.IsType<Customer>(okResult.Value);
+
+        Assert.Equal(customer, returnedCustomer);
+        Assert.Equal(2, returnedCustomer.Orders.Count);
+        Assert.Contains(returnedCustomer.Orders, o => o.Id == 1);
+        Assert.Contains(returnedCustomer.Orders, o => o.Id == 2);
+
+        _mockUnitOfWork.Verify(u => u.Customers.Get(customer.Id), Times.Once);
+    }
+
+    [Fact]
+    public void GetCustomer_ReturnsNotFound_WhenCustomerDoesNotExist()
+    {
+        // Arrange
+        int nonExistentCustomerId = 999;
+        _mockUnitOfWork.Setup(u => u.Customers.Get(nonExistentCustomerId)).Returns((Customer)null);
+
+        // Act
+        var result = _controller.GetCustomer(nonExistentCustomerId);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
 
     [Fact]
     public void GetAllCustomers_ReturnsOkResult_WithAListOfCustomers()
@@ -151,5 +199,17 @@ public class CustomerControllerTests
         _mockUnitOfWork.Verify(u => u.Complete(), Times.Once);
     }
 
+    [Fact]
+    public void RemoveCustomer_ReturnsNotFound_WhenCustomerDoesNotExist()
+    {
+        // Arrange
+        int nonExistentCustomerId = 999;
+        _mockUnitOfWork.Setup(u => u.Customers.Get(nonExistentCustomerId)).Returns((Customer)null);
 
+        // Act
+        var result = _controller.RemoveCustomer(nonExistentCustomerId);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
 }

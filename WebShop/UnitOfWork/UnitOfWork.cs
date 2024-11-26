@@ -32,7 +32,15 @@ namespace WebShop.UnitOfWork
 
         public int Complete()
         {
-            return _context.SaveChanges();
+            try
+            {
+                return _context.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public void Dispose()

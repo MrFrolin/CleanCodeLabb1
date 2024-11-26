@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Repository.Model;
+using WebShop.Notifications;
 using WebShop.UnitOfWork;
 
 namespace WebShop.Controllers
@@ -89,11 +90,6 @@ namespace WebShop.Controllers
 
             try
             {
-                var existingCustomer = _unitOfWork.Customers.Get(customer.Id);
-                if (existingCustomer == null)
-                {
-                    return NotFound("No customer found");
-                }
 
                 _unitOfWork.Customers.Update(customer);
 

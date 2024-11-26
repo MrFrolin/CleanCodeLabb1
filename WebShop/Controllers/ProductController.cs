@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Repository.Model;
+using WebShop.Notifications;
 using WebShop.UnitOfWork;
 
 namespace WebShop.Controllers
@@ -9,11 +10,13 @@ namespace WebShop.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ProductSubject _productSubject;
 
         // Constructor with UnitOfWork injected
-        public ProductController(IUnitOfWork unitOfWork)
+        public ProductController(IUnitOfWork unitOfWork, ProductSubject projectSubject)
         {
             _unitOfWork = unitOfWork;
+            _productSubject = projectSubject;
         }
 
         // GET: api/Product/id
@@ -49,9 +52,10 @@ namespace WebShop.Controllers
                 var products = _unitOfWork.Products.GetAll();
                 if (products == null || !products.Any())
                 {
-                    return Ok("No products found");
+                    return Ok("No products found.");
                 }
                 return Ok(products);
+
             }
             catch (Exception ex)
             {
@@ -73,7 +77,10 @@ namespace WebShop.Controllers
                 // Save changes
                 _unitOfWork.Complete();
 
+                _productSubject.Notify(product);
+
                 return Ok("Product added successfully.");
+
             }
             catch (Exception ex)
             {
@@ -114,6 +121,12 @@ namespace WebShop.Controllers
 
             try
             {
+                var product = _unitOfWork.Products.Get(productId);
+                if (product == null)
+                {
+                    return NotFound($"Product with ID {productId} not found.");
+                }
+
                 _unitOfWork.Products.Remove(productId);
                 _unitOfWork.Complete();
 

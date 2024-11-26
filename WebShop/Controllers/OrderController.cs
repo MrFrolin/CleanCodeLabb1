@@ -20,9 +20,18 @@ namespace WebShop.Controllers
         [HttpGet("{orderId}")]
         public IActionResult GetOrder(int orderId)
         {
+
+            if (orderId == null)
+            {
+                return BadRequest("Order Id is null");
+            }
+
             try
             {
                 var order = _unitOfWork.Orders.Get(orderId);
+
+                if (order == null)
+                    return NotFound($"Order with ID {orderId} not found.");
 
                 return Ok(order);
             }
@@ -57,6 +66,8 @@ namespace WebShop.Controllers
 
             try
             {
+                order.Products = GetProductsFromDb(order.Products);
+
                 _unitOfWork.Orders.Add(order);
                 _unitOfWork.Complete();
 
@@ -111,6 +122,17 @@ namespace WebShop.Controllers
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
+        }
+
+        private List<Product> GetProductsFromDb(List<Product> productsList)
+        {
+            var prodList = new List<Product>();
+            foreach (var product in productsList)
+            {
+                var productDb = _unitOfWork.Products.Get(product.Id);
+                prodList.Add(productDb);
+            }
+            return prodList;
         }
     }
 }

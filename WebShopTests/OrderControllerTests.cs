@@ -7,7 +7,7 @@ using Repository.Repositories.Products;
 using WebShop.Controllers;
 using WebShop.UnitOfWork;
 
-namespace WebShop.Tests;
+namespace WebShopTests;
 
 public class OrderControllerTests
 {
@@ -49,6 +49,25 @@ public class OrderControllerTests
     }
 
     [Fact]
+    public void GetOrder_ReturnsNotFound_WhenOrderDoesNotExist()
+    {
+        // Arrange
+       int nonExistentOrderId = 999;
+       _mockUnitOfWork.Setup(u => u.Orders.Get(nonExistentOrderId)).Returns((Order)null);
+
+        // Act
+        var result = _controller.GetOrder(nonExistentOrderId);
+
+
+        // Assert
+        var badRequestResult = Assert.IsType<NotFoundObjectResult>(result);
+        Assert.Equal($"Order with ID {nonExistentOrderId} not found.", badRequestResult.Value);
+
+        _mockUnitOfWork.Verify(u => u.Orders.Get(nonExistentOrderId), Times.Once);
+
+    }
+
+    [Fact]
     public void GetAllOrders_ReturnsOkResult_WithAListOfOrders()
     {
         // Arrange
@@ -82,6 +101,23 @@ public class OrderControllerTests
     }
 
     [Fact]
+    public void GetAllOrders_ReturnsOkResult_WithAnEmptyList()
+    {
+        // Arrange
+        _mockUnitOfWork.Setup(u => u.Orders.GetAll()).Returns(new List<Order>());
+
+        // Act
+        var result = _controller.GetAllOrders();
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var orders = Assert.IsAssignableFrom<List<Order>>(okResult.Value);
+        Assert.Empty(orders);
+
+        _mockUnitOfWork.Verify(u => u.Orders.GetAll(), Times.Once);
+    }
+
+    [Fact]
     public void AddOrder_ReturnsOkResult()
     {
         // Arrange
@@ -102,6 +138,37 @@ public class OrderControllerTests
         Assert.Equal("Order added successfully.", okResult.Value);
         _mockOrderRepository.Verify(o => o.Add(It.Is<Order>(o => o == order)), Times.Once);
         _mockUnitOfWork.Verify(u => u.Complete(), Times.Once);
+    }
+
+    [Fact]
+    public void AddOrder_WithProduct_ReturnsOkResult()
+    {
+        // Arrange
+        var product = new Product { Id = 1, Name = "Product1" };
+        _mockUnitOfWork.Setup(u => u.Products.Get(It.IsAny<int>())).Returns(product);
+
+
+        var order = new Order
+        {
+            Id = 1,
+            CustomerId = 123,
+            OrderDate = DateTime.Now,
+            Products = [product]
+        };
+
+        // Act
+        var result = _controller.AddOrder(order);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+
+        Assert.Equal("Order added successfully.", okResult.Value);
+        _mockOrderRepository.Verify(o => o.Add(It.Is<Order>(o => o == order)), Times.Once);
+        _mockUnitOfWork.Verify(u => u.Complete(), Times.Once);
+
+        // Additional assertions
+        Assert.Equal(1, order.Products.Count);
+        Assert.Contains(order.Products, p => p.Id == 1 && p.Name == "Product1");
     }
 
     [Fact]
@@ -156,5 +223,22 @@ public class OrderControllerTests
 
         _mockUnitOfWork.Verify(u => u.Orders.Remove(orderId), Times.Once);
         _mockUnitOfWork.Verify(u => u.Complete(), Times.Once);
+    }
+
+    [Fact]
+    public void RemoveOrder_ReturnsNotFound_WhenOrderDoesNotExist()
+    {
+        // Arrange
+        int nonExistentOrderId = 999;
+        _mockUnitOfWork.Setup(u => u.Orders.Get(nonExistentOrderId)).Returns((Order)null);
+
+        // Act
+        var result = _controller.RemoveOrder(nonExistentOrderId);
+
+        // Assert
+        var badRequestResult = Assert.IsType<NotFoundObjectResult>(result);
+        Assert.Equal($"Order with ID {nonExistentOrderId} not found.", badRequestResult.Value);
+
+        _mockUnitOfWork.Verify(u => u.Orders.Get(nonExistentOrderId), Times.Once);
     }
 }

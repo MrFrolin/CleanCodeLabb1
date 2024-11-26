@@ -1,15 +1,53 @@
-namespace WebShop.Tests
+
+using Moq;
+using Repository.Model;
+using Repository.Repositories.Products;
+using WebShop.Controllers;
+using WebShop.Notifications;
+using WebShop.UnitOfWork;
+
+namespace WebShopTests
 {
     public class UnitOfWorkTests
     {
+        private readonly Mock<IUnitOfWork> _mockUnitOfWork;
+        private readonly Mock<IProductRepository> _mockProductRepository;
+        private readonly Mock<INotificationObserver> _mockObserver;
+        private readonly ProductController _controller;
+        private readonly ProductSubject _mockProductSubject;
+
+        public UnitOfWorkTests()
+        {
+            _mockUnitOfWork = new Mock<IUnitOfWork>();
+            _mockProductRepository = new Mock<IProductRepository>();
+            _mockUnitOfWork.Setup(u => u.Products).Returns(_mockProductRepository.Object);
+
+            // Mock observer
+            _mockObserver = new Mock<INotificationObserver>();
+
+            // Mock ProductSubject and attach observer
+            _mockProductSubject = new ProductSubject();
+            _mockProductSubject.Attach(_mockObserver.Object);
+
+            // Inject mocks into controller
+            _controller = new ProductController(_mockUnitOfWork.Object, _mockProductSubject);
+        }
+
         [Fact]
         public void NotifyProductAdded_CallsObserverUpdate()
         {
+            Product product = new Product
             // Arrange
+            {
+                Id = 1,
+                Name = "TestProduct"
+            };
 
             // Act
+            _controller.AddProduct(product);
 
             // Assert
+            _mockObserver.Verify(p => p.Update(product), Times.Once);
         }
     }
 }

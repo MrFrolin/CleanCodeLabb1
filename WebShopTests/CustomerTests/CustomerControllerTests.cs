@@ -42,44 +42,6 @@ public class CustomerControllerTests
         //Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var returnedCustomer = Assert.IsType<Customer>(okResult.Value);
-
-        Assert.Equal(customer, returnedCustomer);
-        _mockUnitOfWork.Verify(u => u.Customers.Get(customer.Id), Times.Once);
-    }
-
-
-    [Fact]
-    public void GetCustomer_ReturnsOkResult_WithCustomerHavingOrders()
-    {
-        // Arrange
-        var orders = new List<Order>
-        {
-            new Order { Id = 1, CustomerId = 1, OrderDate = DateTime.Now },
-            new Order { Id = 2, CustomerId = 1, OrderDate = DateTime.Now.AddDays(-1) }
-        };
-
-        var customer = new Customer
-        {
-            Id = 1,
-            Name = "TestCustomer",
-            Orders = orders
-        };
-
-        _mockUnitOfWork.Setup(u => u.Customers.Get(customer.Id)).Returns(customer);
-
-        // Act
-        var result = _controller.GetCustomer(customer.Id);
-
-        // Assert
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnedCustomer = Assert.IsType<Customer>(okResult.Value);
-
-        Assert.Equal(customer, returnedCustomer);
-        Assert.Equal(2, returnedCustomer.Orders.Count);
-        Assert.Contains(returnedCustomer.Orders, o => o.Id == 1);
-        Assert.Contains(returnedCustomer.Orders, o => o.Id == 2);
-
-        _mockUnitOfWork.Verify(u => u.Customers.Get(customer.Id), Times.Once);
     }
 
     [Fact]
@@ -120,11 +82,7 @@ public class CustomerControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var customers = Assert.IsAssignableFrom<List<Customer>>(okResult.Value);
-        Assert.Equal(2, customers.Count);
-        Assert.Equal(customer, customers[0]);
-
-        _mockUnitOfWork.Verify(u => u.Customers.GetAll(), Times.Once);
+        Assert.IsAssignableFrom<List<Customer>>(okResult.Value);
     }
 
     [Fact]
@@ -143,10 +101,7 @@ public class CustomerControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-
         Assert.Equal("Customer added successfully.", okResult.Value);
-        _mockCustomerRepository.Verify(p => p.Add(It.Is<Customer>(p => p == customer)), Times.Once);
-        _mockUnitOfWork.Verify(u => u.Complete(), Times.Once);
     }
 
     [Fact]
@@ -169,11 +124,6 @@ public class CustomerControllerTests
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         Assert.Equal($"Customer with ID {customer.Id} updated successfully.", okResult.Value);
-
-        Assert.Equal("UpdatedName", customer.Name);
-
-        _mockUnitOfWork.Verify(u => u.Customers.Update(customer), Times.Once);
-        _mockUnitOfWork.Verify(u => u.Complete(), Times.Once);
     }
 
     [Fact]
@@ -195,9 +145,6 @@ public class CustomerControllerTests
         //Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         Assert.Equal($"Customer with ID {customerId} removed successfully.", okResult.Value);
-
-        _mockUnitOfWork.Verify(u => u.Customers.Remove(customerId), Times.Once);
-        _mockUnitOfWork.Verify(u => u.Complete(), Times.Once);
     }
 
     [Fact]

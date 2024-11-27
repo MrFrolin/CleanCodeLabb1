@@ -8,10 +8,6 @@ namespace Repository.Repositories
     {
         public OrderRepository(MyDbContext context, DbSet<Order> dbSet) : base(context, dbSet) { }
 
-        public bool ChangeOrderStatus(Order order)
-        {
-            throw new NotImplementedException();
-        }
 
 
     }

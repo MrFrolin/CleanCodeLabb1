@@ -22,14 +22,10 @@ namespace WebShopTests
             _mockProductRepository = new Mock<IProductRepository>();
             _mockUnitOfWork.Setup(u => u.Products).Returns(_mockProductRepository.Object);
 
-            // Mock observer
             _mockObserver = new Mock<INotificationObserver>();
-
-            // Mock ProductSubject and attach observer
+            
             _mockProductSubject = new ProductSubject();
             _mockProductSubject.Attach(_mockObserver.Object);
-
-            // Inject mocks into controller
             _controller = new ProductController(_mockUnitOfWork.Object, _mockProductSubject);
         }
 

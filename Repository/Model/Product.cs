@@ -9,8 +9,5 @@ namespace Repository.Model
         public string Name { get; set; }
         [JsonIgnore]
         public List<Order> Orders { get; set; } = new();
-
-        //// Example of navigation property
-        //public Category Category { get; set; }
     }
 }

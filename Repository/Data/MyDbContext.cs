@@ -21,16 +21,6 @@ namespace Repository.Data
 
             modelBuilder.Entity<Product>();
 
-            //modelBuilder.Entity<OrderItem>()
-            //    .HasOne(oi => oi.Order)
-            //    .WithMany(o => o.OrderItems)
-            //    .HasForeignKey(oi => oi.OrderId);
-
-            //modelBuilder.Entity<OrderItem>()
-            //    .HasOne(oi => oi.Product)
-            //    .WithMany()
-            //    .HasForeignKey(oi => oi.ProductId);
-
             base.OnModelCreating(modelBuilder);
         }
     }
